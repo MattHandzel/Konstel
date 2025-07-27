@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Konstel-specific design tokens for causal reasoning interface */
+:root {
+  --konstel-neural-blue: #1e3a8a;
+  --konstel-synapse-purple: #7c3aed;
+  --konstel-insight-gold: #f59e0b;
+  --konstel-flow-cyan: #06b6d4;
+  --konstel-impact-red: #dc2626;
+  --konstel-growth-green: #059669;
+  
+  /* Causal strength gradients */
+  --weak-causal: rgba(148, 163, 184, 0.3);
+  --moderate-causal: rgba(99, 102, 241, 0.6);
+  --strong-causal: rgba(79, 70, 229, 0.9);
+  
+  /* Confidence level indicators */
+  --low-confidence: #fbbf24;
+  --medium-confidence: #3b82f6;
+  --high-confidence: #10b981;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    color: #f8fafc;
+    overflow: hidden;
+  }
+
+  /* Custom scrollbar for causal exploration */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--konstel-neural-blue), var(--konstel-synapse-purple));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--konstel-synapse-purple), var(--konstel-insight-gold));
+  }
+}
+
+@layer components {
+  /* Konstel's signature glowing focus states for neural-like interactions */
+  .konstel-focus {
+    @apply outline-none ring-2 ring-purple-500/50 ring-offset-2 ring-offset-slate-900;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+  }
+
+  /* Causal pulse animation for active nodes */
+  .causal-pulse {
+    animation: causal-breathe 3s ease-in-out infinite;
+  }
+
+  @keyframes causal-breathe {
+    0%, 100% { 
+      transform: scale(1);
+      filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.4));
+    }
+    50% { 
+      transform: scale(1.05);
+      filter: drop-shadow(0 0 16px rgba(124, 58, 237, 0.8));
+    }
+  }
+
+  /* Impact ripple effect for goal-factor connections */
+  .impact-ripple {
+    position: relative;
+  }
+
+  .impact-ripple::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: impact-expand 2s ease-out infinite;
+  }
+
+  @keyframes impact-expand {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+  }
+
+  /* Neural pathway visualization for causal connections */
+  .neural-pathway {
+    stroke-dasharray: 5, 5;
+    animation: pathway-flow 2s linear infinite;
+  }
+
+  @keyframes pathway-flow {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: 20; }
+  }
+
+  /* Constellation background pattern - subtle brain-like network */
+  .constellation-canvas {
+    background-image: 
+      radial-gradient(circle at 20% 80%, rgba(120, 113, 108, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+    background-size: 400px 400px, 600px 600px, 300px 300px;
+    animation: constellation-drift 60s ease-in-out infinite;
+  }
+
+  @keyframes constellation-drift {
+    0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+    50% { background-position: 100% 100%, 0% 0%, 25% 75%; }
+  }
+}
+
+@layer utilities {
+  /* Konstel-specific utility classes for causal interface elements */
+  .text-insight { color: var(--konstel-insight-gold); }
+  .text-neural { color: var(--konstel-neural-blue); }
+  .text-synapse { color: var(--konstel-synapse-purple); }
+  .text-flow { color: var(--konstel-flow-cyan); }
+  .text-impact { color: var(--konstel-impact-red); }
+  .text-growth { color: var(--konstel-growth-green); }
+
+  .bg-weak-causal { background-color: var(--weak-causal); }
+  .bg-moderate-causal { background-color: var(--moderate-causal); }
+  .bg-strong-causal { background-color: var(--strong-causal); }
+
+  .border-weak-causal { border-color: var(--weak-causal); }
+  .border-moderate-causal { border-color: var(--moderate-causal); }
+  .border-strong-causal { border-color: var(--strong-causal); }
+}

@@ -1,0 +1,76 @@
+# Konstel Project Rules - AI-Powered Goal Optimization System
+
+## Project Overview
+- Konstel is a desktop application that creates personalized causal graphs for goal optimization
+- The system uses AI agents to discover factors influencing user goals and provides actionable insights
+- Core concept: "Connect overlooked expertise to discover creative solutions to any problem"
+- Users create "constellations" (graphs) instead of traditional documents
+
+## Technology Stack & Architecture
+- Backend: Python 3.11+ with FastAPI for agent-based architecture
+- Frontend: TypeScript + React + Electron for cross-platform desktop app
+- Database: SurrealDB for local graph storage (multi-model: document + graph)
+- Graph Visualization: D3.js or Cytoscape.js for interactive graph rendering
+- LLM Integration: Llama (local) with OpenAI API fallback
+- Communication: IPC between Electron frontend and Python backend
+
+## Development Principles
+- **Local-First**: All data stored and processed locally for privacy
+- **Real-Time Updates**: Graph visualization updates live as AI agents work
+- **Human-AI Collaboration**: Transparent AI operations with user control
+- **Graph-Centric Interface**: Everything visualized as interactive graphs
+- **Performance Target**: 60+ FPS rendering with 1000+ nodes
+
+## Core Data Models
+- **Constellations**: User's goal/problem graphs (root containers)
+- **Nodes**: Factors, actions, or entities influencing goals
+- **Edges**: Causal relationships with quantified impact scores
+- **User Profile**: Comprehensive personal context database
+- **Raw Input**: All user interactions stored for reprocessing
+
+## AI Agent Architecture
+- **Goal Refinement Agent**: Evaluates and improves goal specificity using structured rubrics
+- **Factor Discovery Agent**: Researches influences using expert knowledge and user documents
+- **Graph Generation Agent**: Creates nodes and relationships with impact scoring
+- **Personalization Agent**: Adapts recommendations based on user profile
+- **Natural Language Agent**: Handles conversational graph modifications
+
+## Code Style & Standards
+- **Python**: Follow PEP 8, use type hints, prioritize readability over premature optimization
+- **TypeScript**: Strict mode enabled, prefer interfaces over types, functional components
+- **File Structure**: Modular architecture with clear separation between agents, UI, and data layers
+- **Error Handling**: Comprehensive logging for AI agent activities and user interactions
+- **Testing**: Focus on agent behavior validation and graph performance benchmarks
+
+## Graph Data Management
+- **Node Attributes**: title, description, impact_score, node_type, source, position
+- **Edge Attributes**: weight, relationship_type, confidence_level
+- **Versioning**: Support for graph schema evolution and data migrations
+- **Export/Import**: JSON format for backup and integration with other systems
+- **Source Tracking**: Track whether data comes from user, AI, documents, or internet
+
+## User Experience Guidelines
+- **Keyboard-First**: Complete functionality accessible via keyboard (Neovim-style)
+- **Progressive Disclosure**: Information revealed based on user interest and context
+- **Search-Centric**: Universal search across all graphs and entities (backslash key)
+- **Real-Time Feedback**: Show AI agent progress and allow user intervention
+- **Conversation Interface**: Ctrl+? opens chat for natural language interaction
+
+## Privacy & Security
+- **Zero External Dependencies**: Core functionality works offline
+- **No Data Transmission**: User data never leaves the device
+- **Audit Trail**: Complete log of all inputs and system actions
+- **User Control**: Full visibility and editability of all stored information
+
+## Development Workflow
+- **Phase 1 Focus**: Basic graph visualization, goal definition, AI factor discovery
+- **Agent Transparency**: Show what each AI agent is working on in real-time
+- **User Feedback Loops**: Allow users to guide AI focus and provide corrections
+- **Iterative Refinement**: System learns and adapts through user interactions
+
+## Special Considerations
+- **Graph Complexity**: Handle thousands of nodes with smart filtering and expansion
+- **Causal Relationships**: Model uncertainty and confidence levels in connections
+- **Personalization**: Build comprehensive user understanding over time
+- **Creative Solutions**: Encourage lateral thinking and interdisciplinary approaches
+- **Goal Specificity**: Use structured rubrics to improve goal definition quality
