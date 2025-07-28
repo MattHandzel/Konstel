@@ -142,7 +142,7 @@ class FactorDiscoveryRequest(BaseModel):
 # Chat and conversation models
 class ChatMessage(BaseModel):
     id: str
-    role: str = Field(..., regex="^(user|assistant)$")
+    role: str = Field(..., pattern="^(user|assistant)$")
     content: str = Field(..., min_length=1)
     timestamp: datetime
     graph_modifications: Optional[List[Dict[str, Any]]] = Field(default_factory=list)
@@ -160,10 +160,15 @@ class ChatResponse(BaseModel):
 
 # User profile models
 class UserProfileEntry(BaseModel):
-    key: str
+    key: str = Field(..., pattern=r'^[a-zA-Z0-9_-]+$')  # Ensures key is URL-safe
     value: str
-    data_type: str = "string"
-    updated_at: datetime
+    data_type: str = Field("string", pattern=r'^[a-z]+$')  # Simple type validation
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        json_encoders = {
+            datetime: lambda dt: dt.isoformat()
+        }
 
 class UserProfile(BaseModel):
     entries: Dict[str, UserProfileEntry] = Field(default_factory=dict)
