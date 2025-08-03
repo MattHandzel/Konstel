@@ -162,10 +162,6 @@ export function GoalDefinitionWizard({ onGoalDefined, onCancel, initialGoal }: G
         {/* Modal Footer */}
         <div className="flex justify-end space-x-2 p-6 border-t border-slate-700/50 sticky bottom-0 bg-slate-800">
           <button
-            onClick={onCancel}
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg konstel-focus"
-          >Cancel</button>
-          <button
             onClick={handleNext}
             className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg konstel-focus"
           >Create Constellation</button>

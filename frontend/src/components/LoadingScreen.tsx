@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { Brain, Zap } from 'lucide-react'
+import { Network, Zap } from 'lucide-react'
 
 /**
- * Konstel Loading Screen - Neural Network Initialization
+ * Konstel Loading Screen - Causal Network Initialization
  * 
  * This loading screen provides visual feedback during system initialization
- * using the neural metaphor. Rather than a generic spinner, it shows
- * animated neural activity that represents the cognitive processes
+ * using the causal metaphor. Rather than a generic spinner, it shows
+ * animated causal activity that represents the cognitive processes
  * starting up in the background.
  */
 
@@ -15,9 +15,9 @@ interface LoadingScreenProps {
   progress?: number // 0-100, optional progress indicator
 }
 
-export function LoadingScreen({ message = "Initializing neural pathways...", progress }: LoadingScreenProps) {
+export function LoadingScreen({ message = "Initializing causal pathways...", progress }: LoadingScreenProps) {
   const [dots, setDots] = useState('')
-  const [neuralActivity, setNeuralActivity] = useState<Array<{ id: number; x: number; y: number; delay: number }>>([])
+  const [causalActivity, setCausalActivity] = useState<Array<{ id: number; x: number; y: number; delay: number }>>([])
 
   // Animated loading dots
   useEffect(() => {
@@ -31,9 +31,9 @@ export function LoadingScreen({ message = "Initializing neural pathways...", pro
     return () => clearInterval(interval)
   }, [])
 
-  // Generate random neural activity points
+  // Generate random causal activity points
   useEffect(() => {
-    const generateNeuralPoints = () => {
+    const generateCausalPoints = () => {
       const points = []
       for (let i = 0; i < 15; i++) {
         points.push({
@@ -43,17 +43,17 @@ export function LoadingScreen({ message = "Initializing neural pathways...", pro
           delay: Math.random() * 3
         })
       }
-      setNeuralActivity(points)
+      setCausalActivity(points)
     }
 
-    generateNeuralPoints()
+    generateCausalPoints()
   }, [])
 
   return (
     <div className="loading-screen h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Neural background activity */}
+      {/* Causal background activity */}
       <div className="absolute inset-0 opacity-20">
-        {neuralActivity.map((point) => (
+        {causalActivity.map((point) => (
           <div
             key={point.id}
             className="absolute w-1 h-1 bg-purple-400 rounded-full"
@@ -66,10 +66,10 @@ export function LoadingScreen({ message = "Initializing neural pathways...", pro
           />
         ))}
         
-        {/* Neural connection lines */}
+        {/* Causal connection lines */}
         <svg className="absolute inset-0 w-full h-full" style={{ zIndex: -1 }}>
-          {neuralActivity.slice(0, 8).map((point, index) => {
-            const nextPoint = neuralActivity[(index + 1) % neuralActivity.length]
+          {causalActivity.slice(0, 8).map((point, index) => {
+            const nextPoint = causalActivity[(index + 1) % causalActivity.length]
             return (
               <line
                 key={`connection-${index}`}
@@ -91,11 +91,11 @@ export function LoadingScreen({ message = "Initializing neural pathways...", pro
 
       {/* Main loading content */}
       <div className="relative z-10 text-center">
-        {/* Konstel brain icon with activity */}
+        {/* Konstel system icon with activity */}
         <div className="relative mb-8">
-          <Brain size={64} className="text-purple-400 mx-auto" />
+          <Network size={64} className="text-purple-400 mx-auto" />
           
-          {/* Neural activity indicator */}
+          {/* Causal activity indicator */}
           <div className="absolute -top-2 -right-2">
             <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full 
                           flex items-center justify-center animate-pulse">
@@ -103,7 +103,7 @@ export function LoadingScreen({ message = "Initializing neural pathways...", pro
             </div>
           </div>
           
-          {/* Pulsing neural field */}
+          {/* Pulsing causal field */}
           <div className="absolute inset-0 -m-8">
             <div className="w-full h-full border border-purple-400/30 rounded-full animate-ping" />
           </div>
@@ -119,7 +119,7 @@ export function LoadingScreen({ message = "Initializing neural pathways...", pro
             {message.replace(/\.\.\.$/, '')}<span className="text-purple-400">{dots}</span>
           </h2>
           <p className="text-slate-400 text-sm">
-            Connecting neural pathways and initializing causal reasoning systems
+            Connecting causal pathways and initializing causal reasoning systems
           </p>
         </div>
 
@@ -127,7 +127,7 @@ export function LoadingScreen({ message = "Initializing neural pathways...", pro
         {typeof progress === 'number' && (
           <div className="w-64 mx-auto mb-4">
             <div className="flex justify-between text-xs text-slate-400 mb-1">
-              <span>Neural Synchronization</span>
+              <span>Causal Synchronization</span>
               <span>{Math.round(progress)}%</span>
             </div>
             <div className="w-full bg-slate-700 rounded-full h-2">
@@ -157,11 +157,11 @@ export function LoadingScreen({ message = "Initializing neural pathways...", pro
           ))}
         </div>
 
-        {/* System status indicators */}
+        {/* Network status indicators */}
         <div className="text-xs text-slate-500 space-y-1">
           <div className="flex items-center justify-center space-x-2">
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            <span>Neural Network: Online</span>
+            <span>Causal Network: Online</span>
           </div>
           <div className="flex items-center justify-center space-x-2">
             <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
@@ -169,7 +169,7 @@ export function LoadingScreen({ message = "Initializing neural pathways...", pro
           </div>
           <div className="flex items-center justify-center space-x-2">
             <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
-            <span>Factor Discovery System: Standby</span>
+            <span>Factor Discovery Network: Standby</span>
           </div>
         </div>
       </div>

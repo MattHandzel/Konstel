@@ -211,6 +211,9 @@ interface ConstellationActions {
   loadConstellation: (id: string) => Promise<void>
   createConstellation: (name: string, description: string) => Promise<ConstellationDetail>
   addFactorNode: (title: string, description: string, impactScore?: number) => Promise<void>
+  updateNode: (nodeId: string, updates: Partial<Node>) => Promise<void>
+  deleteNode: (nodeId: string) => Promise<void>
+  expandNode: (nodeId: string) => Promise<void>
   establishCausalLink: (sourceId: string, targetId: string, strength: number) => Promise<void>
   focusOnFactor: (nodeId: string | null) => void
   switchInsightMode: (mode: InsightMode) => void
@@ -282,6 +285,90 @@ export function ConstellationProvider({ children }: { children: React.ReactNode 
         actions.triggerNeuralPulse([node.id])
       } catch (error) {
         console.error('Failed to add factor node:', error)
+      }
+    },
+
+    async updateNode(nodeId: string, updates: Partial<Node>) {
+      if (!state.currentConstellation) return
+
+      try {
+        const updatedNode = await api.updateNode(nodeId, updates)
+        dispatch({ type: 'UPDATE_NODE', payload: { id: nodeId, updates: updatedNode } })
+        
+        // Trigger neural pulse for updated node
+        actions.triggerNeuralPulse([nodeId])
+      } catch (error) {
+        console.error('Failed to update node:', error)
+      }
+    },
+
+    async deleteNode(nodeId: string) {
+      if (!state.currentConstellation) return
+
+      try {
+        await api.deleteNode(nodeId)
+        dispatch({ type: 'REMOVE_NODE', payload: nodeId })
+        
+        // Clear focus if this node was focused
+        if (state.focusedNodeId === nodeId) {
+          actions.focusOnFactor(null)
+        }
+      } catch (error) {
+        console.error('Failed to delete node:', error)
+      }
+    },
+
+    async expandNode(nodeId: string) {
+      if (!state.currentConstellation) return
+
+      try {
+        // Find related factors using AI
+        const node = state.currentConstellation.nodes.find(n => n.id === nodeId)
+        if (!node) return
+
+        dispatch({ type: 'SET_AI_PROCESSING', payload: true })
+        
+        const goalDefinition: GoalDefinition = {
+          name: node.title,
+          description: node.description || '',
+          timeframe: '',
+          constraints: [],
+          success_criteria: [],
+          specificity_score: 0.7,
+          measurability_score: 0.6
+        }
+
+        const response = await api.discoverFactors(state.currentConstellation.id, {
+          goal_definition: goalDefinition,
+          depth: 1,
+          focus_areas: [node.title]
+        })
+        
+        // Add discovered nodes connected to the expanded node
+        const newNodeIds: string[] = []
+        for (const newNode of response.created_nodes) {
+          dispatch({ type: 'ADD_NODE', payload: newNode })
+          newNodeIds.push(newNode.id)
+          
+          // Create connection to the expanded node
+          const edge = await api.createEdge(state.currentConstellation.id, {
+            source_id: nodeId,
+            target_id: newNode.id,
+            weight: 0.6,
+            relationship_type: 'influences'
+          })
+          
+          dispatch({ type: 'ADD_EDGE', payload: edge })
+          actions.propagateImpactSignal(nodeId, newNode.id, 0.6)
+        }
+        
+        // Trigger neural pulse for expansion
+        actions.triggerNeuralPulse([nodeId, ...newNodeIds])
+        
+      } catch (error) {
+        console.error('Failed to expand node:', error)
+      } finally {
+        dispatch({ type: 'SET_AI_PROCESSING', payload: false })
       }
     },
 

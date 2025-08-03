@@ -1,13 +1,13 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { AlertTriangle, RefreshCw, Home, Brain } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home, Network } from 'lucide-react'
 
 /**
- * Konstel Error Boundary - Neural Fault Recovery System
+ * Konstel Error Boundary - Network Fault Recovery Network
  * 
- * This error boundary provides graceful error handling with the neural metaphor.
- * Rather than showing generic error messages, it presents errors as "neural
+ * This error boundary provides graceful error handling with the system metaphor.
+ * Rather than showing generic error messages, it presents errors as "system
  * disruptions" and provides contextual recovery options that maintain the
- * brain-inspired interface theme.
+ * system-inspired interface theme.
  */
 
 interface Props {
@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     // Generate unique error ID for tracking
-    const errorId = `neural-error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    const errorId = `system-error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     
     return {
       hasError: true,
@@ -52,7 +52,7 @@ export class ErrorBoundary extends Component<Props, State> {
     })
 
     // Log error for debugging (in development)
-    console.error('Konstel Neural Disruption:', error)
+    console.error('Konstel Network Disruption:', error)
     console.error('Error Info:', errorInfo)
     
     // In production, you would send this to your error reporting service
@@ -105,21 +105,21 @@ export class ErrorBoundary extends Component<Props, State> {
     switch (severity) {
       case 'critical':
         return {
-          title: 'Neural Network Disconnection',
-          description: 'The neural pathways have been severely disrupted. A full system restart is recommended.',
+          title: 'Network Network Disconnection',
+          description: 'The system pathways have been severely disrupted. A full system restart is recommended.',
           icon: AlertTriangle,
           color: 'text-red-400'
         }
       case 'moderate':
         return {
           title: 'Synaptic Interference Detected',
-          description: 'Some neural connections are experiencing interference. We can attempt to re-establish them.',
-          icon: Brain,
+          description: 'Some system connections are experiencing interference. We can attempt to re-establish them.',
+          icon: Network,
           color: 'text-orange-400'
         }
       case 'minor':
         return {
-          title: 'Minor Neural Fluctuation',
+          title: 'Minor Network Fluctuation',
           description: 'A small disruption in the cognitive process. Normal function should resume shortly.',
           icon: RefreshCw,
           color: 'text-yellow-400'
@@ -140,7 +140,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="error-boundary h-screen flex items-center justify-center relative constellation-canvas">
-          {/* Neural disruption background effect */}
+          {/* Network disruption background effect */}
           <div className="absolute inset-0 opacity-10">
             {[...Array(30)].map((_, i) => (
               <div
@@ -157,7 +157,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </div>
 
           <div className="relative z-10 max-w-2xl mx-auto text-center px-8">
-            {/* Error icon with neural disruption effect */}
+            {/* Error icon with system disruption effect */}
             <div className="relative mb-8">
               <Icon size={64} className={`${metaphor.color} mx-auto`} />
               
@@ -222,7 +222,7 @@ export class ErrorBoundary extends Component<Props, State> {
                            transition-all duration-300 flex items-center justify-center space-x-2 konstel-focus"
                 >
                   <RefreshCw size={18} />
-                  <span>Restart Neural Process</span>
+                  <span>Restart Network Process</span>
                 </button>
                 
                 {severity === 'critical' && (
@@ -232,7 +232,7 @@ export class ErrorBoundary extends Component<Props, State> {
                              rounded-lg transition-colors flex items-center justify-center space-x-2 konstel-focus"
                   >
                     <AlertTriangle size={18} />
-                    <span>Full System Reset</span>
+                    <span>Full Network Reset</span>
                   </button>
                 )}
               </div>
@@ -244,14 +244,14 @@ export class ErrorBoundary extends Component<Props, State> {
                          justify-center space-x-2 mx-auto konstel-focus"
               >
                 <Home size={18} />
-                <span>Return to Neural Hub</span>
+                <span>Return to Network Hub</span>
               </button>
             </div>
 
             {/* Support information */}
             <div className="mt-8 text-sm text-slate-500">
               <p>
-                If this neural disruption persists, the system may need recalibration.
+                If this system disruption persists, the system may need recalibration.
               </p>
               {process.env.NODE_ENV === 'production' && (
                 <p className="mt-2">

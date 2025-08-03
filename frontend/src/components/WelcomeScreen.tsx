@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useConstellation } from '../contexts/ConstellationContext'
 import { useKonstelAPI } from '../hooks/useKonstelAPI'
-import { Brain, Plus, FolderOpen, Zap, Target, Lightbulb, Network } from 'lucide-react'
+import { Network, Plus, FolderOpen, Zap, Target, Lightbulb } from 'lucide-react'
 import { GoalDefinitionWizard } from './GoalDefinitionWizard'
 import type { Constellation, GoalDefinition } from '../types/konstel'
 
 /**
  * Konstel Welcome Screen - Gateway to Causal Exploration
  * 
- * This screen introduces users to Konstel's neural approach to goal optimization.
- * Rather than a traditional dashboard, it's designed as a "neural command center"
+ * This screen introduces users to Konstel's causal approach to goal optimization.
+ * Rather than a traditional dashboard, it's designed as a "causal command center"
  * that helps users either begin a new cognitive journey or resume exploration
  * of existing goal constellations.
  */
@@ -108,7 +108,7 @@ export function WelcomeScreen() {
       <div className="welcome-screen h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-300">Loading your neural workspace...</p>
+          <p className="text-slate-300">Loading your causal workspace...</p>
         </div>
       </div>
     )
@@ -123,7 +123,7 @@ export function WelcomeScreen() {
           initialGoal={undefined}
         />
       )}
-      {/* Neural Header */}
+      {/* Causal Header */}
       <div className="relative min-h-screen flex flex-col">
         {/* Animated background patterns */}
         <div className="absolute inset-0 overflow-hidden">
@@ -148,10 +148,10 @@ export function WelcomeScreen() {
           {/* Hero Section */}
           <div className="flex-1 flex items-center justify-center px-8">
             <div className="max-w-4xl mx-auto text-center">
-              {/* Konstel Logo/Brain Icon */}
+              {/* Konstel Logo/Network Icon */}
               <div className="mb-8">
                 <div className="relative inline-block">
-                  <Brain size={80} className="text-purple-400 causal-pulse" />
+                  <Network size={80} className="text-purple-400 causal-pulse" />
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
                     <Zap size={14} className="text-white" />
                   </div>
@@ -164,7 +164,7 @@ export function WelcomeScreen() {
               </h1>
               
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Transform your goals into <span className="text-blue-400">neural constellations</span> of interconnected factors.
+                Transform your goals into <span className="text-blue-400">causal constellations</span> of interconnected factors.
                 <br />
                 Discover hidden connections, optimize your approach, and achieve breakthrough insights.
               </p>
@@ -188,10 +188,10 @@ export function WelcomeScreen() {
                 </div>
                 
                 <div className="text-center p-6 rounded-lg bg-slate-800/30 backdrop-blur-sm border border-slate-700/50">
-                  <Brain className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-                  <h3 className="text-lg font-medium text-white mb-2">Neural Insights</h3>
+                  <Network className="w-8 h-8 text-purple-400 mx-auto mb-3" />
+                  <h3 className="text-lg font-medium text-white mb-2">Causal Insights</h3>
                   <p className="text-sm text-slate-400">
-                    Visualize causal relationships through an intuitive, brain-inspired interface
+                    Visualize causal relationships through an intuitive, system-inspired interface
                   </p>
                 </div>
               </div>
@@ -244,7 +244,7 @@ export function WelcomeScreen() {
             <div id="existing-constellations" className="py-16 px-8 border-t border-slate-700/50">
               <div className="max-w-6xl mx-auto">
                 <h2 className="text-2xl font-light text-white mb-8 text-center">
-                  Your Neural <span className="text-purple-400">Constellations</span>
+                  Your Causal <span className="text-purple-400">Constellations</span>
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -260,7 +260,7 @@ export function WelcomeScreen() {
                         <h3 className="text-lg font-medium text-white group-hover:text-purple-300 transition-colors">
                           {constellation.name}
                         </h3>
-                        <Brain size={18} className="text-purple-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+                        <Network size={18} className="text-purple-400 opacity-60 group-hover:opacity-100 transition-opacity" />
                       </div>
                       
                       {constellation.description && (
@@ -270,7 +270,7 @@ export function WelcomeScreen() {
                       )}
                       
                       <div className="flex items-center justify-between text-xs text-slate-500">
-                        <span>Neural Network</span>
+                        <span>Causal Network</span>
                         <span className="text-purple-400">
                           {new Date(constellation.updated_at).toLocaleDateString()}
                         </span>

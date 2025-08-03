@@ -17,34 +17,63 @@ class GoalRefinementAgent:
     async def evaluate_goal(self, goal_text: str) -> GoalEvaluation:
         """Evaluate a goal using an improved 1-5 rubric with JSON output and robust parsing."""
 
-        system_prompt = """You are an expert goal-setting coach. Evaluate the following goal using these five criteria, each on a 1-5 scale (1 = very poor, 5 = excellent):
+        system_prompt = """You are an expert goal-setting coach.  
+Evaluate the user’s goal using the five SMART-style criteria below.  
+For each criterion, give:
 
-1. specificity: How clear and precise is the goal?
-2. measurability: How easy is it to measure progress/success?
-3. time_boundedness: Is there a clear, specific timeframe or deadline?
-4. personal_relevance: Is the goal clearly tied to the user's own life, values, or motivation?
-5. achievability: Is the goal realistic and attainable?
+• "score": an integer 1-5  
+• "reasoning": 1-2 sentences explaining the score  
+• "suggestion": a concrete revision tip **only** if score < 4, otherwise ""  
 
-For each category, provide:
-- a score (1-5)
-- a 1-2 sentence reasoning for the score
-- if the score is less than 4, provide a concrete suggestion for improvement (otherwise, use an empty string)
+After the five criteria, add a "suggestions" array containing 2-3 actionable tips for improving the goal overall.
 
-After the categories, include a "suggestions" array with 2-3 actionable tips for improving the goal overall.
+Scoring rubric (applies to every criterion):
+1 = Very poor – criterion nearly absent or fatally flawed  
+2 = Poor – criterion present but vague, weak, or unrealistic  
+3 = Adequate – criterion partially met; clear gaps remain  
+4 = Good – criterion well met with minor improvements possible  
+5 = Excellent – criterion fully satisfied; no notable weaknesses
 
-Output ONLY valid JSON wrapped in triple backticks (```), in the following format:
-```
+Criterion-specific guidance:
+
+1. specificity  
+   • 1: Goal is abstract & ambiguous (“get healthier”).  
+   • 3: States desired outcome but lacks key details (“exercise more three times”).  
+   • 5: States exactly what will be done, by whom, where, & how often (“jog 5 km in the campus gym every weekday morning”).  
+
+2. measurability  
+   • 1: No measurable metric (“read more”).  
+   • 3: Has a metric but unclear target or tracking method (“read books regularly”).  
+   • 5: Quantified metric and clear tracking (“finish one 300-page book per month, logging pages in a spreadsheet”).  
+
+3. time_boundedness  
+   • 1: No timeframe.  
+   • 3: Vague timeframe (“sometime next semester”).  
+   • 5: Specific deadline or schedule (“submit the app to the App Store by 11 Dec 2025”).  
+
+4. personal_relevance  
+   • 1: No link to user’s life or values is apparent.  
+   • 3: Generic relevance (“good for my career”).  
+   • 5: Explicit personal motivation or value tie-in (“to strengthen my grad-school application in HCI”).  
+
+5. achievability  
+   • 1: Clearly unrealistic given typical constraints.  
+   • 3: Plausible but missing evidence of feasibility (resources, skills, time).  
+   • 5: Realistic with supporting factors stated (skills, resources, prior experience).
+
+Return ONLY valid JSON wrapped in triple backticks:
+
+```json
 {
   "specificity": {"score": 4, "reasoning": "...", "suggestion": "..."},
   "measurability": {"score": 3, "reasoning": "...", "suggestion": "..."},
   "time_boundedness": {"score": 5, "reasoning": "...", "suggestion": ""},
   "personal_relevance": {"score": 5, "reasoning": "...", "suggestion": ""},
   "achievability": {"score": 4, "reasoning": "...", "suggestion": "..."},
-  "suggestions": ["...", "...", "..."]
 }
 ```
-If you cannot evaluate, still output valid JSON with empty strings and score 1 for each category.
-"""
+
+If evaluation is impossible, still output valid JSON with empty strings and score 1 for every category."""
 
         user_prompt = f"Evaluate this goal: '{goal_text}'"
 
@@ -55,24 +84,46 @@ If you cannot evaluate, still output valid JSON with empty strings and score 1 f
                     {"role": "user", "content": user_prompt},
                 ],
                 model=MODEL_NAME,
-                temperature=0.3,
-                max_tokens=700,
+                temperature=0,
+                max_tokens=5000,
             )
             print(content)
-            evaluation_data = json.loads(json_str)
+            if "```" in content:
+                content = content.replace("```json", "```")
+                content = content.split("```")[1]
+
+            evaluation_data = json.loads(content)
             return GoalEvaluation(**evaluation_data)
 
         except Exception as e:
+            print("Got an error during goal evaluation:", e)
             # Fallback evaluation if API fails
             return GoalEvaluation(
-                specificity_score=0.5,
-                measurability_score=0.5,
-                time_boundedness_score=0.5,
-                overall_score=0.5,
-                feedback=f"Unable to evaluate goal due to error: {str(e)}",
-                areas_for_improvement=[
-                    "Please try again with a clearer goal statement"
-                ],
+                specificity={
+                    "score": 1,
+                    "reasoning": "Evaluation failed",
+                    "suggestion": "",
+                },
+                measurability={
+                    "score": 1,
+                    "reasoning": "Evaluation failed",
+                    "suggestion": "",
+                },
+                time_boundedness={
+                    "score": 1,
+                    "reasoning": "Evaluation failed",
+                    "suggestion": "",
+                },
+                personal_relevance={
+                    "score": 1,
+                    "reasoning": "Evaluation failed",
+                    "suggestion": "",
+                },
+                achievability={
+                    "score": 1,
+                    "reasoning": "Evaluation failed",
+                    "suggestion": "",
+                },
             )
 
     async def suggest_improvements(self, goal_text: str) -> List[str]:

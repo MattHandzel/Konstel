@@ -1,12 +1,12 @@
 /**
- * Konstel Type Definitions - Neural Architecture for Goal Optimization
+ * Konstel Type Definitions - Causal Graph Data Models
  * 
  * These types define the cognitive structures used in Konstel's causal reasoning
- * interface. Each type represents a concept in the neural metaphor of goal
+ * interface. Each type represents a concept in the causal graph for goal optimization
  * achievement through factor interconnection.
  */
 
-// Base neural entity types
+// Base entity types for causal graph
 export interface BaseEntity {
   id: string
   created_at: string
@@ -165,8 +165,8 @@ export interface CausalResonance {
   discovered_at: number // timestamp
 }
 
-// Neural Clustering - cognitive groupings of related factors
-export interface NeuralCluster {
+// Cluster groupings - cognitive groupings of related factors
+export interface FactorCluster {
   id: string
   centroid: { x: number; y: number } // visual center of the cluster
   nodeIds: string[]
@@ -221,13 +221,13 @@ export type CognitiveLens =
   | 'emergence' // view by emergent patterns and clusters
   | 'optimization' // view by potential intervention points
 
-// Visual Metaphor Configuration - how the brain-like interface appears
+// Visual Metaphor Configuration - how the interface appears
 export interface VisualizationMetaphor {
-  neural_density: number // 0.1-1.0: how densely packed the neural elements appear
+  cluster_density: number // 0.1-1.0: how densely packed the nodes appear
   synapse_visibility: number // 0.0-1.0: how prominent the connections are
   electrical_activity: number // 0.0-1.0: intensity of the pulsing/flowing effects
   cognitive_depth: number // 0.0-1.0: how much depth/layering to show
-  resonance_sensitivity: number // 0.1-1.0: how sensitive to show resonance patterns
+  pattern_sensitivity: number // 0.1-1.0: how sensitive to show pattern resonance
   active_lens: CognitiveLens
 }
 

@@ -2,10 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useConstellation } from '../contexts/ConstellationContext'
 import { CausalExplorationCanvas } from './CausalExplorationCanvas'
-import { Brain, MessageCircle, Settings, ArrowLeft, Zap, Plus, Search } from 'lucide-react'
+import { NodeEditModal } from './NodeEditModal'
+import { Network, MessageCircle, Settings, ArrowLeft, Zap, Plus, Search } from 'lucide-react'
+import type { Node } from '../types/konstel'
 
 /**
- * Constellation Workspace - The Neural Command Center
+ * Constellation Workspace - The Causal Workspace
  * 
  * This is the main interface where users explore and manipulate their goal
  * constellations. Unlike traditional graph editors, this workspace is designed
@@ -23,6 +25,8 @@ export function ConstellationWorkspace() {
   const [isAddingFactor, setIsAddingFactor] = useState(false)
   const [newFactorName, setNewFactorName] = useState('')
   const [workspaceMode, setWorkspaceMode] = useState<'exploration' | 'analysis' | 'optimization'>('exploration')
+  const [editingNode, setEditingNode] = useState<Node | null>(null)
+  const [selectedNodes, setSelectedNodes] = useState<string[]>([])
 
   // Load constellation when component mounts or ID changes
   useEffect(() => {
@@ -31,10 +35,10 @@ export function ConstellationWorkspace() {
     }
   }, [id, actions, state.currentConstellation?.id])
 
-  // Handle keyboard shortcuts for neural interface navigation
+  // Handle keyboard shortcuts for causal interface navigation
   useEffect(() => {
     const handleKeyboardShortcuts = (event: KeyboardEvent) => {
-      // Ctrl+? or Cmd+? opens chat interface
+      // Ctrl+? or Cmd+? opens assistant panel
       if ((event.ctrlKey || event.metaKey) && event.key === '/') {
         event.preventDefault()
         setIsChatOpen(true)
@@ -101,13 +105,48 @@ export function ConstellationWorkspace() {
     }
   }, [state.currentConstellation, actions])
 
+  // Node interaction handlers
+  const handleNodeSelect = useCallback((nodeIds: string[]) => {
+    setSelectedNodes(nodeIds)
+    if (nodeIds.length === 1) {
+      actions.focusOnFactor(nodeIds[0])
+    } else {
+      actions.focusOnFactor(null)
+    }
+  }, [actions])
+
+  const handleNodeEdit = useCallback((nodeId: string) => {
+    const node = state.currentConstellation?.nodes.find(n => n.id === nodeId)
+    if (node) {
+      setEditingNode(node)
+    }
+  }, [state.currentConstellation])
+
+  const handleNodeDelete = useCallback(async (nodeId: string) => {
+    if (window.confirm('Are you sure you want to delete this node?')) {
+      await actions.deleteNode(nodeId)
+      setSelectedNodes(prev => prev.filter(id => id !== nodeId))
+    }
+  }, [actions])
+
+  const handleNodeExpand = useCallback(async (nodeId: string) => {
+    await actions.expandNode(nodeId)
+  }, [actions])
+
+  const handleSaveNodeEdit = useCallback(async (updates: Partial<Node>) => {
+    if (editingNode) {
+      await actions.updateNode(editingNode.id, updates)
+      setEditingNode(null)
+    }
+  }, [editingNode, actions])
+
   // Show loading state while constellation loads
   if (!state.currentConstellation) {
     return (
       <div className="constellation-workspace h-screen flex items-center justify-center">
         <div className="text-center">
-          <Brain size={48} className="text-purple-400 causal-pulse mx-auto mb-4" />
-          <p className="text-slate-300">Loading neural constellation...</p>
+          <Network size={48} className="text-purple-400 causal-pulse mx-auto mb-4" />
+          <p className="text-slate-300">Loading causal constellation...</p>
         </div>
       </div>
     )
@@ -115,8 +154,8 @@ export function ConstellationWorkspace() {
 
   return (
     <div className="constellation-workspace h-screen flex flex-col overflow-hidden">
-      {/* Neural Navigation Bar */}
-      <div className="neural-navbar bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4">
+      {/* Causal Navigation Bar */}
+      <div className="causal-navbar bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left: Navigation and Title */}
           <div className="flex items-center space-x-4">
@@ -128,7 +167,7 @@ export function ConstellationWorkspace() {
             </button>
             
             <div className="flex items-center space-x-3">
-              <Brain size={24} className="text-purple-400" />
+              <Network size={24} className="text-purple-400" />
               <div>
                 <h1 className="text-lg font-medium text-white">
                   {state.currentConstellation.name}
@@ -144,7 +183,7 @@ export function ConstellationWorkspace() {
           <div className="flex items-center space-x-2 bg-slate-800/50 rounded-lg p-1">
             {[
               { mode: 'exploration', icon: Search, label: 'Explore' },
-              { mode: 'analysis', icon: Brain, label: 'Analyze' },
+              { mode: 'analysis', icon: Network, label: 'Analyze' },
               { mode: 'optimization', icon: Zap, label: 'Optimize' }
             ].map(({ mode, icon: Icon, label }) => (
               <button
@@ -213,9 +252,13 @@ export function ConstellationWorkspace() {
           width={window.innerWidth}
           height={window.innerHeight - 80} // Account for navbar
           className="absolute inset-0"
+          onNodeSelect={handleNodeSelect}
+          onNodeEdit={handleNodeEdit}
+          onNodeDelete={handleNodeDelete}
+          onNodeExpand={handleNodeExpand}
         />
 
-        {/* Neural Activity Overlay */}
+        {/* Causal Activity Overlay */}
         {state.isProcessingAI && (
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
             <div className="bg-purple-900/90 backdrop-blur-sm border border-purple-500/50 rounded-lg px-6 py-3">
@@ -259,7 +302,7 @@ export function ConstellationWorkspace() {
         )}
       </div>
 
-      {/* Neural Chat Interface */}
+      {/* Causal Chat Interface */}
       {isChatOpen && (
         <div className="absolute bottom-0 right-0 w-96 h-80 bg-slate-800/95 backdrop-blur-sm 
                       border-l border-t border-slate-600/50 rounded-tl-lg z-50">
@@ -268,7 +311,7 @@ export function ConstellationWorkspace() {
             <div className="flex items-center justify-between p-4 border-b border-slate-600/50">
               <div className="flex items-center space-x-2">
                 <MessageCircle size={18} className="text-blue-400" />
-                <span className="text-white font-medium">Neural Assistant</span>
+                <span className="text-white font-medium">Causal Assistant</span>
               </div>
               <button
                 onClick={() => setIsChatOpen(false)}
@@ -351,6 +394,16 @@ export function ConstellationWorkspace() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Node Edit Modal */}
+      {editingNode && (
+        <NodeEditModal
+          node={editingNode}
+          isOpen={!!editingNode}
+          onClose={() => setEditingNode(null)}
+          onSave={handleSaveNodeEdit}
+        />
       )}
 
       {/* Keyboard Shortcuts Hint */}
