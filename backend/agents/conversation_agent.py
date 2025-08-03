@@ -1,8 +1,8 @@
 """
 Konstel Conversation Agent - AI agent for natural language interaction with graphs
 """
-import openai
 import os
+from llm_client import LLMClient
 from typing import List, Dict, Any, Optional
 from models.data_models import (
     ConstellationDetail, ChatMessage, ChatResponse, 
@@ -14,9 +14,7 @@ import uuid
 
 class ConversationAgent:
     def __init__(self):
-        self.client = openai.AsyncOpenAI(
-            api_key=os.getenv("OPENAI_API_KEY")
-        )
+        self.llm_client = LLMClient()
     
     async def process_message(
         self, 
@@ -98,19 +96,16 @@ Examples:
         user_prompt = f"User message: '{message}'"
         
         try:
-            response = await self.client.chat.completions.create(
-                model="gpt-4",
+            content = await self.llm_client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
+                model="llama3",
                 temperature=0.3,
                 max_tokens=500
             )
-            
-            content = response.choices[0].message.content
             intent = json.loads(content)
-            
             return intent
             
         except Exception as e:
@@ -234,17 +229,16 @@ Graph: {constellation.name} with {len(constellation.nodes)} factors
 """
 
         try:
-            response = await self.client.chat.completions.create(
-                model="gpt-4",
+            content = await self.llm_client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": context}
                 ],
+                model="llama3",
                 temperature=0.7,
                 max_tokens=200
             )
-            
-            return response.choices[0].message.content
+            return content
             
         except Exception as e:
             # Fallback response

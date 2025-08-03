@@ -4,8 +4,8 @@
     # Core system libraries
     glib
     gtk3
-    libgbm  # For hardware-accelerated rendering
-    libglvnd  # Vendor-neutral dispatch layer for GL implementations
+    libgbm # For hardware-accelerated rendering
+    libglvnd # Vendor-neutral dispatch layer for GL implementations
     nss
     nspr # Provides libnspr4.so
     at-spi2-core
@@ -96,8 +96,6 @@ in
         gcc
         gnumake
         pkg-config
-
-        # Electron dependencies
       ]
       ++ electronDeps;
 
@@ -107,14 +105,16 @@ in
       export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath electronDeps}:$LD_LIBRARY_PATH
 
       # Python virtual environment
-      if [ ! -d "venv" ]; then
-        python -m venv venv
+      if [ ! -d ".venv" ]; then
+        python -m venv .venv
       fi
-      source venv/bin/activate
+      source .venv/bin/activate
 
       # Node modules
-      if [ ! -d "node_modules" ]; then
+      if [ ! -d "frontend/node_modules" ]; then
+        cd frontend
         npm install
+        cd ..
       fi
 
       echo "Environment ready! Run 'npm run dev' to start the development server."

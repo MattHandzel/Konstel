@@ -1,8 +1,8 @@
 """
 Konstel Goal Refinement Agent - AI agent for evaluating and improving goal definitions
 """
-import openai
 import os
+from llm_client import LLMClient
 from typing import List, Dict, Any
 from models.data_models import GoalDefinition, GoalEvaluation
 import json
@@ -10,9 +10,7 @@ import re
 
 class GoalRefinementAgent:
     def __init__(self):
-        self.client = openai.AsyncOpenAI(
-            api_key=os.getenv("OPENAI_API_KEY")
-        )
+        self.llm_client = LLMClient()
         self.rubric = GoalSpecificityRubric()
     
     async def evaluate_goal(self, goal_text: str) -> GoalEvaluation:
@@ -50,20 +48,16 @@ Respond with a JSON object containing:
         user_prompt = f"Evaluate this goal: '{goal_text}'"
         
         try:
-            response = await self.client.chat.completions.create(
-                model="gpt-4",
+            content = await self.llm_client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
+                model="llama3",
                 temperature=0.3,
                 max_tokens=500
             )
-            
-            # Parse JSON response
-            content = response.choices[0].message.content
             evaluation_data = json.loads(content)
-            
             return GoalEvaluation(**evaluation_data)
             
         except Exception as e:
@@ -95,19 +89,16 @@ Return a JSON array of question strings."""
         user_prompt = f"Generate improvement questions for this goal: '{goal_text}'"
         
         try:
-            response = await self.client.chat.completions.create(
-                model="gpt-4",
+            content = await self.llm_client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
+                model="llama3",
                 temperature=0.7,
                 max_tokens=300
             )
-            
-            content = response.choices[0].message.content
             questions = json.loads(content)
-            
             return questions if isinstance(questions, list) else []
             
         except Exception as e:

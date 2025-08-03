@@ -1,12 +1,30 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        // Konstel-specific colors
+        konstel: {
+          'neural-blue': '#1e3a8a',
+          'synapse-purple': '#7c3aed',
+          'insight-gold': '#f59e0b',
+          'flow-cyan': '#06b6d4',
+          'impact-red': '#dc2626',
+          'growth-green': '#059669',
+        },
+        // Causal strength gradients
+        'weak-causal': 'rgba(148, 163, 184, 0.3)',
+        'moderate-causal': 'rgba(99, 102, 241, 0.6)',
+        'strong-causal': 'rgba(79, 70, 229, 0.9)',
+        // Confidence levels
+        'low-confidence': '#fbbf24',
+        'medium-confidence': '#60a5fa',
+        'high-confidence': '#34d399',
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',

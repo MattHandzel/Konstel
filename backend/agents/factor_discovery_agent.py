@@ -1,17 +1,15 @@
 """
 Konstel Factor Discovery Agent - AI agent for discovering factors that influence goals
 """
-import openai
 import os
+from llm_client import LLMClient
 from typing import List, Dict, Any
 from models.data_models import GoalDefinition, Factor
 import json
 
 class FactorDiscoveryAgent:
     def __init__(self):
-        self.client = openai.AsyncOpenAI(
-            api_key=os.getenv("OPENAI_API_KEY")
-        )
+        self.llm_client = LLMClient()
     
     async def discover_factors(self, goal_definition: GoalDefinition, depth: int = 2) -> List[Factor]:
         """Discover factors that influence the given goal"""
@@ -48,19 +46,16 @@ Discover factors that influence this goal (depth level: {depth}).
 """
         
         try:
-            response = await self.client.chat.completions.create(
-                model="gpt-4",
+            content = await self.llm_client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
+                model="llama3",
                 temperature=0.7,
                 max_tokens=2000
             )
-            
-            content = response.choices[0].message.content
             factors_data = json.loads(content)
-            
             factors = []
             for factor_data in factors_data:
                 factor = Factor(
@@ -74,7 +69,6 @@ Discover factors that influence this goal (depth level: {depth}).
                     related_factors=factor_data.get("related_factors", [])
                 )
                 factors.append(factor)
-            
             return factors
             
         except Exception as e:
@@ -104,19 +98,16 @@ Estimate the impact of this factor on achieving the goal.
 """
         
         try:
-            response = await self.client.chat.completions.create(
-                model="gpt-4",
+            content = await self.llm_client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
+                model="llama3",
                 temperature=0.3,
                 max_tokens=200
             )
-            
-            content = response.choices[0].message.content
             result = json.loads(content)
-            
             return result.get("impact_score", factor.impact_score)
             
         except Exception as e:
