@@ -2,7 +2,7 @@
 Konstel Factor Discovery Agent - AI agent for discovering factors that influence goals
 """
 import os
-from llm_client import LLMClient
+from llm_client import LLMClient, MODEL_NAME
 from typing import List, Dict, Any
 from models.data_models import GoalDefinition, Factor
 import json
@@ -51,7 +51,7 @@ Discover factors that influence this goal (depth level: {depth}).
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                model="llama3",
+                model=MODEL_NAME,
                 temperature=0.7,
                 max_tokens=2000
             )
@@ -103,7 +103,7 @@ Estimate the impact of this factor on achieving the goal.
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                model="llama3",
+                model=MODEL_NAME,
                 temperature=0.3,
                 max_tokens=200
             )

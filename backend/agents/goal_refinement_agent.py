@@ -1,65 +1,67 @@
 """
 Konstel Goal Refinement Agent - AI agent for evaluating and improving goal definitions
 """
+
 import os
-from llm_client import LLMClient
+from llm_client import LLMClient, MODEL_NAME
 from typing import List, Dict, Any
 from models.data_models import GoalDefinition, GoalEvaluation
 import json
 import re
 
+
 class GoalRefinementAgent:
     def __init__(self):
         self.llm_client = LLMClient()
-        self.rubric = GoalSpecificityRubric()
-    
+
     async def evaluate_goal(self, goal_text: str) -> GoalEvaluation:
-        """Evaluate a goal using structured rubric"""
-        
-        system_prompt = """You are an expert goal-setting coach. Evaluate the given goal using these criteria:
+        """Evaluate a goal using an improved 1-5 rubric with JSON output and robust parsing."""
 
-1. SPECIFICITY (0.0-1.0): How clear and specific is the goal?
-   - 0.0-0.3: Vague, unclear what exactly needs to be achieved
-   - 0.4-0.6: Somewhat specific but missing key details
-   - 0.7-0.9: Clear and specific with most details defined
-   - 1.0: Extremely specific with all key details defined
+        system_prompt = """You are an expert goal-setting coach. Evaluate the following goal using these five criteria, each on a 1-5 scale (1 = very poor, 5 = excellent):
 
-2. MEASURABILITY (0.0-1.0): How measurable is the goal?
-   - 0.0-0.3: No clear way to measure progress or success
-   - 0.4-0.6: Some measurable elements but incomplete
-   - 0.7-0.9: Mostly measurable with clear metrics
-   - 1.0: Completely measurable with precise metrics
+1. specificity: How clear and precise is the goal?
+2. measurability: How easy is it to measure progress/success?
+3. time_boundedness: Is there a clear, specific timeframe or deadline?
+4. personal_relevance: Is the goal clearly tied to the user's own life, values, or motivation?
+5. achievability: Is the goal realistic and attainable?
 
-3. TIME-BOUNDEDNESS (0.0-1.0): How well-defined is the timeframe?
-   - 0.0-0.3: No timeframe mentioned
-   - 0.4-0.6: Vague timeframe (e.g., "soon", "eventually")
-   - 0.7-0.9: Clear timeframe with some specificity
-   - 1.0: Precise deadline or timeframe
+For each category, provide:
+- a score (1-5)
+- a 1-2 sentence reasoning for the score
+- if the score is less than 4, provide a concrete suggestion for improvement (otherwise, use an empty string)
 
-Respond with a JSON object containing:
-- specificity_score: float
-- measurability_score: float  
-- time_boundedness_score: float
-- overall_score: float (average of the three)
-- feedback: string (2-3 sentences explaining the scores)
-- areas_for_improvement: array of strings (specific suggestions)
+After the categories, include a "suggestions" array with 2-3 actionable tips for improving the goal overall.
+
+Output ONLY valid JSON wrapped in triple backticks (```), in the following format:
+```
+{
+  "specificity": {"score": 4, "reasoning": "...", "suggestion": "..."},
+  "measurability": {"score": 3, "reasoning": "...", "suggestion": "..."},
+  "time_boundedness": {"score": 5, "reasoning": "...", "suggestion": ""},
+  "personal_relevance": {"score": 5, "reasoning": "...", "suggestion": ""},
+  "achievability": {"score": 4, "reasoning": "...", "suggestion": "..."},
+  "suggestions": ["...", "...", "..."]
+}
+```
+If you cannot evaluate, still output valid JSON with empty strings and score 1 for each category.
 """
 
         user_prompt = f"Evaluate this goal: '{goal_text}'"
-        
+
         try:
             content = await self.llm_client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
+                    {"role": "user", "content": user_prompt},
                 ],
-                model="llama3",
+                model=MODEL_NAME,
                 temperature=0.3,
-                max_tokens=500
+                max_tokens=700,
             )
-            evaluation_data = json.loads(content)
+            print(content)
+            evaluation_data = json.loads(json_str)
             return GoalEvaluation(**evaluation_data)
-            
+
         except Exception as e:
             # Fallback evaluation if API fails
             return GoalEvaluation(
@@ -68,12 +70,14 @@ Respond with a JSON object containing:
                 time_boundedness_score=0.5,
                 overall_score=0.5,
                 feedback=f"Unable to evaluate goal due to error: {str(e)}",
-                areas_for_improvement=["Please try again with a clearer goal statement"]
+                areas_for_improvement=[
+                    "Please try again with a clearer goal statement"
+                ],
             )
-    
+
     async def suggest_improvements(self, goal_text: str) -> List[str]:
         """Generate specific questions to improve goal definition"""
-        
+
         system_prompt = """You are a goal-setting coach helping someone refine their goal. 
 Generate 3-5 specific, actionable questions that would help make this goal more specific, measurable, and time-bound.
 
@@ -87,20 +91,35 @@ Focus on:
 Return a JSON array of question strings."""
 
         user_prompt = f"Generate improvement questions for this goal: '{goal_text}'"
-        
+
         try:
             content = await self.llm_client.chat_completion(
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
+                    {"role": "user", "content": user_prompt},
                 ],
-                model="llama3",
+                model=MODEL_NAME,
                 temperature=0.7,
-                max_tokens=300
+                max_tokens=300,
             )
-            questions = json.loads(content)
-            return questions if isinstance(questions, list) else []
-            
+            # Parse LLM output: extract JSON between triple backticks if present
+            match = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", content)
+            if match:
+                json_str = match.group(1)
+            else:
+                # fallback: try to find first JSON object
+                match = re.search(r"\{.*\}", content, re.DOTALL)
+                if not match:
+                    raise ValueError("No JSON object found in LLM output")
+                json_str = match.group(0)
+            try:
+                result = json.loads(json_str)
+            except Exception as e:
+                raise ValueError(
+                    f"Failed to parse JSON from LLM output: {e}\nRaw output: {content}"
+                )
+            return result if isinstance(result, list) else []
+
         except Exception as e:
             # Fallback questions if API fails
             return [
@@ -108,73 +127,5 @@ Return a JSON array of question strings."""
                 "How will you measure progress toward this goal?",
                 "What is your target deadline for achieving this?",
                 "What constraints or limitations should be considered?",
-                "What would success look like in concrete, observable terms?"
+                "What would success look like in concrete, observable terms?",
             ]
-
-class GoalSpecificityRubric:
-    """Structured rubric for evaluating goal quality"""
-    
-    def __init__(self):
-        self.specificity_criteria = {
-            "clarity": "Is the goal clearly stated?",
-            "scope": "Is the scope well-defined?",
-            "outcome": "Is the desired outcome specific?",
-            "context": "Is relevant context provided?"
-        }
-        
-        self.measurability_criteria = {
-            "metrics": "Are there clear success metrics?",
-            "progress": "Can progress be tracked?",
-            "completion": "Is completion clearly defined?",
-            "quantification": "Are quantities/amounts specified?"
-        }
-        
-        self.time_criteria = {
-            "deadline": "Is there a specific deadline?",
-            "milestones": "Are there interim milestones?",
-            "urgency": "Is the timeframe realistic?",
-            "schedule": "Is there a clear timeline?"
-        }
-    
-    def evaluate_text_quality(self, text: str) -> Dict[str, float]:
-        """Basic text analysis for goal quality"""
-        scores = {}
-        
-        # Specificity indicators
-        specific_words = ["specific", "exactly", "precisely", "particular", "detailed"]
-        vague_words = ["better", "more", "improve", "increase", "good", "some"]
-        
-        specificity_score = 0.5
-        for word in specific_words:
-            if word in text.lower():
-                specificity_score += 0.1
-        for word in vague_words:
-            if word in text.lower():
-                specificity_score -= 0.1
-        
-        scores["specificity"] = max(0.0, min(1.0, specificity_score))
-        
-        # Measurability indicators
-        number_pattern = r'\d+'
-        measurement_words = ["measure", "track", "count", "percent", "pounds", "dollars", "hours", "days"]
-        
-        measurability_score = 0.3
-        if re.search(number_pattern, text):
-            measurability_score += 0.3
-        for word in measurement_words:
-            if word in text.lower():
-                measurability_score += 0.1
-        
-        scores["measurability"] = max(0.0, min(1.0, measurability_score))
-        
-        # Time-boundedness indicators
-        time_words = ["by", "within", "before", "after", "deadline", "date", "week", "month", "year"]
-        
-        time_score = 0.2
-        for word in time_words:
-            if word in text.lower():
-                time_score += 0.2
-        
-        scores["time_boundedness"] = max(0.0, min(1.0, time_score))
-        
-        return scores

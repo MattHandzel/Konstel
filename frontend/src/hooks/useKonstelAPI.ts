@@ -9,6 +9,7 @@ import type {
   EdgeCreate,
   GoalDefinition,
   GoalEvaluation,
+  GoalRefinementResponse,
   FactorDiscoveryRequest,
   ChatRequest,
   ChatResponse
@@ -147,10 +148,7 @@ export function useKonstelAPI() {
   }, [transmitNeuralSignal])
 
   // AI reasoning operations - cognitive enhancement
-  const refineGoal = useCallback(async (goalText: string): Promise<{
-    evaluation: GoalEvaluation
-    suggestions: string[]
-  }> => {
+  const refineGoal = useCallback(async (goalText: string): Promise<GoalRefinementResponse> => {
     return transmitNeuralSignal('POST', '/goals/refine', { goal_text: goalText })
   }, [transmitNeuralSignal])
 

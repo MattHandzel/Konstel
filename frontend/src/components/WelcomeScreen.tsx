@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useConstellation } from '../contexts/ConstellationContext'
 import { useKonstelAPI } from '../hooks/useKonstelAPI'
-import { Brain, Plus, Zap, Target, Network } from 'lucide-react'
-import type { Constellation } from '../types/konstel'
+import { Brain, Plus, FolderOpen, Zap, Target, Lightbulb, Network } from 'lucide-react'
+import { GoalDefinitionWizard } from './GoalDefinitionWizard'
+import type { Constellation, GoalDefinition } from '../types/konstel'
 
 /**
  * Konstel Welcome Screen - Gateway to Causal Exploration
@@ -16,14 +17,15 @@ import type { Constellation } from '../types/konstel'
 
 export function WelcomeScreen() {
   const navigate = useNavigate()
-  const { actions } = useConstellation()
-  const { getConstellations } = useKonstelAPI()
+  const { actions, dispatch } = useConstellation()
+  const { getConstellations, createConstellation } = useKonstelAPI()
   
   const [existingConstellations, setExistingConstellations] = useState<Constellation[]>([])
   const [isCreatingNew, setIsCreatingNew] = useState(false)
   const [newGoalName, setNewGoalName] = useState('')
   const [newGoalDescription, setNewGoalDescription] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [showGoalWizard, setShowGoalWizard] = useState(false)
 
   // Load existing constellations on mount
   useEffect(() => {
@@ -59,6 +61,39 @@ export function WelcomeScreen() {
     }
   }
 
+  const handleStartWithGoal = () => {
+    setShowGoalWizard(true)
+  }
+
+  const handleGoalDefined = async (goal: GoalDefinition) => {
+    setIsLoading(true)
+    try {
+      // Create constellation with goal-based name and description
+      const newConstellation = await createConstellation({
+        name: goal.name,
+        description: goal.description
+      })
+      
+      // Store goal definition in constellation metadata
+      // This will be used by the factor discovery agent
+      dispatch({ type: 'SET_CURRENT_CONSTELLATION', payload: {
+        ...newConstellation,
+        goal_definition: goal
+      }})
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: 'workspace' })
+      setShowGoalWizard(false)
+      navigate(`/constellation/${newConstellation.id}`)
+    } catch (error) {
+      console.error('Failed to create goal-based constellation:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleCancelGoalWizard = () => {
+    setShowGoalWizard(false)
+  }
+
   const handleOpenConstellation = async (constellation: Constellation) => {
     try {
       await actions.loadConstellation(constellation.id)
@@ -81,6 +116,13 @@ export function WelcomeScreen() {
 
   return (
     <div className="welcome-screen h-screen overflow-y-auto">
+      {showGoalWizard && (
+        <GoalDefinitionWizard
+          onGoalDefined={handleGoalDefined}
+          onCancel={handleCancelGoalWizard}
+          initialGoal={undefined}
+        />
+      )}
       {/* Neural Header */}
       <div className="relative min-h-screen flex flex-col">
         {/* Animated background patterns */}
@@ -156,6 +198,20 @@ export function WelcomeScreen() {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button
+                  onClick={handleStartWithGoal}
+                  className="group relative px-8 py-4 bg-gradient-to-r from-green-600 to-blue-600 
+                           text-white font-medium rounded-lg hover:from-green-700 hover:to-blue-700 
+                           transition-all duration-300 transform hover:scale-105 konstel-focus"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Lightbulb size={20} />
+                    <span>Define Goal First</span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-400 
+                                rounded-lg opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                </button>
+
                 <button
                   onClick={() => setIsCreatingNew(true)}
                   className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 
@@ -292,6 +348,14 @@ export function WelcomeScreen() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Goal Definition Wizard */}
+      {showGoalWizard && (
+        <GoalDefinitionWizard
+          onGoalDefined={handleGoalDefined}
+          onCancel={handleCancelGoalWizard}
+        />
       )}
     </div>
   )

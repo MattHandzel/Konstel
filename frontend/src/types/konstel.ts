@@ -90,13 +90,22 @@ export interface GoalDefinition {
   metadata?: Record<string, any>
 }
 
+// Dynamic rubric item structure
+export interface RubricItem {
+  score: number
+  reasoning: string
+  suggestion: string
+}
+
+// Dynamic rubric evaluation (keys are rubric criteria)
 export interface GoalEvaluation {
-  specificity_score: number
-  measurability_score: number
-  time_boundedness_score: number
-  overall_score: number
-  feedback: string
-  areas_for_improvement: string[]
+  [key: string]: RubricItem
+}
+
+// Goal refinement response from backend
+export interface GoalRefinementResponse {
+  evaluation: GoalEvaluation
+  suggestions: string[]
 }
 
 export interface GoalRefinementRequest {
