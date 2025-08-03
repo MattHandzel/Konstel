@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useConstellation } from '../contexts/ConstellationContext'
 import { CausalExplorationCanvas } from './CausalExplorationCanvas'
-import { NodeEditModal } from './NodeEditModal'
+
 import { Network, MessageCircle, Settings, ArrowLeft, Zap, Plus, Search } from 'lucide-react'
 import type { Node } from '../types/konstel'
 
@@ -25,7 +25,7 @@ export function ConstellationWorkspace() {
   const [isAddingFactor, setIsAddingFactor] = useState(false)
   const [newFactorName, setNewFactorName] = useState('')
   const [workspaceMode, setWorkspaceMode] = useState<'exploration' | 'analysis' | 'optimization'>('exploration')
-  const [editingNode, setEditingNode] = useState<Node | null>(null)
+  
   const [selectedNodes, setSelectedNodes] = useState<string[]>([])
 
   // Load constellation when component mounts or ID changes
@@ -117,9 +117,6 @@ export function ConstellationWorkspace() {
 
   const handleNodeEdit = useCallback((nodeId: string) => {
     const node = state.currentConstellation?.nodes.find(n => n.id === nodeId)
-    if (node) {
-      setEditingNode(node)
-    }
   }, [state.currentConstellation])
 
   const handleNodeDelete = useCallback(async (nodeId: string) => {
@@ -133,12 +130,6 @@ export function ConstellationWorkspace() {
     await actions.expandNode(nodeId)
   }, [actions])
 
-  const handleSaveNodeEdit = useCallback(async (updates: Partial<Node>) => {
-    if (editingNode) {
-      await actions.updateNode(editingNode.id, updates)
-      setEditingNode(null)
-    }
-  }, [editingNode, actions])
 
   // Show loading state while constellation loads
   if (!state.currentConstellation) {
@@ -272,34 +263,7 @@ export function ConstellationWorkspace() {
           </div>
         )}
 
-        {/* Focused Node Details */}
-        {state.focusedNodeId && (
-          <div className="absolute top-4 left-4 bg-slate-800/90 backdrop-blur-sm border border-slate-600/50 
-                        rounded-lg p-4 max-w-sm z-40">
-            {(() => {
-              const focusedNode = state.currentConstellation?.nodes.find(n => n.id === state.focusedNodeId)
-              if (!focusedNode) return null
-              
-              return (
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-2">{focusedNode.title}</h3>
-                  {focusedNode.description && (
-                    <p className="text-sm text-slate-300 mb-3">{focusedNode.description}</p>
-                  )}
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400">Impact Score</span>
-                    <span className={`font-medium ${
-                      focusedNode.impact_score > 0 ? 'text-green-400' : 
-                      focusedNode.impact_score < 0 ? 'text-red-400' : 'text-gray-400'
-                    }`}>
-                      {focusedNode.impact_score > 0 ? '+' : ''}{focusedNode.impact_score.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              )
-            })()}
-          </div>
-        )}
+        
       </div>
 
       {/* Causal Chat Interface */}
@@ -396,15 +360,7 @@ export function ConstellationWorkspace() {
         </div>
       )}
 
-      {/* Node Edit Modal */}
-      {editingNode && (
-        <NodeEditModal
-          node={editingNode}
-          isOpen={!!editingNode}
-          onClose={() => setEditingNode(null)}
-          onSave={handleSaveNodeEdit}
-        />
-      )}
+
 
       {/* Keyboard Shortcuts Hint */}
       <div className="absolute bottom-4 left-4 text-xs text-slate-500 z-30">

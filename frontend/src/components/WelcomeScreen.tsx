@@ -21,9 +21,7 @@ export function WelcomeScreen() {
   const { getConstellations, createConstellation } = useKonstelAPI()
   
   const [existingConstellations, setExistingConstellations] = useState<Constellation[]>([])
-  const [isCreatingNew, setIsCreatingNew] = useState(false)
-  const [newGoalName, setNewGoalName] = useState('')
-  const [newGoalDescription, setNewGoalDescription] = useState('')
+
   const [isLoading, setIsLoading] = useState(true)
   const [showGoalWizard, setShowGoalWizard] = useState(false)
 
@@ -43,23 +41,7 @@ export function WelcomeScreen() {
     }
   }
 
-  const handleCreateNewConstellation = async () => {
-    if (!newGoalName.trim()) return
 
-    try {
-      setIsLoading(true)
-      const constellation = await actions.createConstellation(
-        newGoalName.trim(),
-        newGoalDescription.trim()
-      )
-      
-      // Navigate to the new constellation workspace
-      navigate(`/constellation/${constellation.id}`)
-    } catch (error) {
-      console.error('Failed to create constellation:', error)
-      setIsLoading(false)
-    }
-  }
 
   const handleStartWithGoal = () => {
     setShowGoalWizard(true)
@@ -197,44 +179,20 @@ export function WelcomeScreen() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex justify-center items-center mb-8">
                 <button
                   onClick={handleStartWithGoal}
-                  className="group relative px-8 py-4 bg-gradient-to-r from-green-600 to-blue-600 
-                           text-white font-medium rounded-lg hover:from-green-700 hover:to-blue-700 
-                           transition-all duration-300 transform hover:scale-105 konstel-focus"
-                >
-                  <div className="flex items-center space-x-2">
-                    <Lightbulb size={20} />
-                    <span>Define Goal First</span>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-400 
-                                rounded-lg opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-                </button>
-
-                <button
-                  onClick={() => setIsCreatingNew(true)}
                   className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 
                            text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 
                            transition-all duration-300 transform hover:scale-105 konstel-focus"
                 >
                   <div className="flex items-center space-x-2">
                     <Plus size={20} />
-                    <span>Begin New Exploration</span>
+                    <span>Begin a new exploration</span>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 
                                 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
                 </button>
-
-                {existingConstellations.length > 0 && (
-                  <button
-                    onClick={() => document.getElementById('existing-constellations')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="px-8 py-4 border border-slate-600 text-slate-300 font-medium rounded-lg
-                             hover:border-slate-500 hover:text-white transition-all duration-300 konstel-focus"
-                  >
-                    Continue Previous Work
-                  </button>
-                )}
               </div>
             </div>
           </div>
@@ -284,71 +242,7 @@ export function WelcomeScreen() {
         </div>
       </div>
 
-      {/* New Constellation Modal */}
-      {isCreatingNew && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-lg p-8 max-w-lg w-full border border-slate-700">
-            <h2 className="text-2xl font-light text-white mb-6">
-              Create New <span className="text-purple-400">Constellation</span>
-            </h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Goal Name
-                </label>
-                <input
-                  type="text"
-                  value={newGoalName}
-                  onChange={(e) => setNewGoalName(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg 
-                           text-white placeholder-slate-400 konstel-focus"
-                  placeholder="e.g., Improve Physical Fitness"
-                  autoFocus
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Description (Optional)
-                </label>
-                <textarea
-                  value={newGoalDescription}
-                  onChange={(e) => setNewGoalDescription(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg 
-                           text-white placeholder-slate-400 resize-none konstel-focus"
-                  rows={3}
-                  placeholder="Describe your goal in more detail..."
-                />
-              </div>
-            </div>
-            
-            <div className="flex space-x-4 mt-8">
-              <button
-                onClick={handleCreateNewConstellation}
-                disabled={!newGoalName.trim() || isLoading}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 
-                         text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 
-                         disabled:opacity-50 disabled:cursor-not-allowed konstel-focus"
-              >
-                {isLoading ? 'Creating...' : 'Create Constellation'}
-              </button>
-              
-              <button
-                onClick={() => {
-                  setIsCreatingNew(false)
-                  setNewGoalName('')
-                  setNewGoalDescription('')
-                }}
-                className="px-6 py-3 border border-slate-600 text-slate-300 font-medium rounded-lg
-                         hover:border-slate-500 hover:text-white konstel-focus"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       {/* Goal Definition Wizard */}
       {showGoalWizard && (

@@ -40,8 +40,6 @@ export interface Node extends BaseEntity {
   impact_score: number // -1.0 to 1.0: strength of influence on goal
   node_type: NodeType
   source: SourceType
-  position_x?: number
-  position_y?: number
   metadata?: Record<string, any>
 }
 
@@ -51,8 +49,6 @@ export interface NodeCreate {
   impact_score?: number
   node_type?: NodeType
   source?: SourceType
-  position_x?: number
-  position_y?: number
   metadata?: Record<string, any>
 }
 
